@@ -1,0 +1,96 @@
+{% load static %}
+{% load cart_extras %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Your Cart | Trusket</title>
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      margin: 0;
+      background: #f5f7fb;
+    }
+    nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: linear-gradient(135deg, #007bff, #00bcd4);
+      padding: 15px 40px;
+      color: white;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .logo { font-size: 24px; font-weight: bold; }
+    .nav-links { display: flex; gap: 20px; align-items: center; }
+    .nav-links a { color: white; text-decoration: none; font-weight: 500; transition: 0.3s; }
+    .nav-links a:hover { opacity: 0.8; }
+    .cart-container { max-width: 900px; margin: 50px auto; background: white; padding: 30px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+    h2 { text-align: center; color: #333; margin-bottom: 25px; }
+    .cart-item { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid #eee; }
+    .cart-item img { width: 100px; height: 100px; object-fit: cover; border-radius: 10px; }
+    .item-details { flex: 1; margin-left: 20px; }
+    .item-details h3 { margin: 0; font-size: 18px; color: #333; }
+    .item-details p { color: #007bff; font-weight: 600; }
+    .remove-btn { background: #ff4d4d; color: white; padding: 8px 12px; border: none; border-radius: 6px; cursor: pointer; transition: 0.3s; }
+    .remove-btn:hover { background: #e60000; }
+    .total-section { text-align: right; font-size: 18px; font-weight: 600; color: #333; margin-top: 20px; border-top: 2px solid #eee; padding-top: 15px; }
+    .checkout-btn { display: block; margin: 20px auto; background: #007bff; color: white; padding: 12px 25px; border-radius: 10px; text-decoration: none; text-align: center; font-weight: bold; transition: 0.3s; }
+    .checkout-btn:hover { background: #0056b3; }
+    .empty-cart { text-align: center; color: #777; font-size: 18px; }
+  </style>
+</head>
+<body>
+  <nav>
+    <div class="logo">🛍️ Trusket</div>
+    <div class="nav-links">
+      <a href="{% url 'home' %}">Home</a>
+      {% if user.is_authenticated %}
+        <a href="{% url 'logout' %}">Logout</a>
+      {% else %}
+        <a href="{% url 'login' %}">Login</a>
+        <a href="{% url 'signup' %}">Signup</a>
+      {% endif %}
+      <a href="{% url 'cart' %}">Cart</a>
+    </div>
+  </nav>
+
+  <div class="cart-container">
+    <h2>Your Cart</h2>
+
+    {% if products %}
+      {% for product in products %}
+        <div class="cart-item">
+
+          {% if product.image %}
+              <img src="{{ product.image.url }}" alt="{{ product.name }}">
+          {% else %}
+              <img src="{% static 'images/no-image.png' %}" alt="No Image">
+          {% endif %}
+
+          <div class="item-details">
+            <h3>{{ product.name }}</h3>
+            <p>₹{{ product.price }}</p>
+          </div>
+
+          <form action="{% url 'remove_from_cart' product.id %}" method="POST">
+            {% csrf_token %}
+            <button type="submit" class="remove-btn">Remove</button>
+          </form>
+        </div>
+      {% endfor %}
+
+      <div class="total-section">
+        Total: ₹{{ products|calc_total }}
+      </div>
+
+      <a href="#" class="checkout-btn">Proceed to Checkout</a>
+
+    {% else %}
+      <p class="empty-cart">Your cart is empty 😔</p>
+    {% endif %}
+  </div>
+</body>
+</html>
